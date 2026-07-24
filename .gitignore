@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+.next/
+
+# Build
+bin/
+obj/
+
+# Environment
+.env
+.env.local
+*.Development.json
+
+# IDE
+.vs/
+.vscode/
+*.suo
+*.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Docker
+docker-compose.override.yml
+
+# .gemini
+.gemini/
+.agents/
