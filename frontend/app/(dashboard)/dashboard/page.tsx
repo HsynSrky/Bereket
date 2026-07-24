@@ -40,140 +40,181 @@ export default function DashboardPage() {
 
   const pendingTasks = tasks.filter(t => t.status === "Bekliyor").length;
   
-  // Get today's tasks
   const todayStr = new Date().toDateString();
   const todaysTasks = tasks.filter(t => new Date(t.dueDate).toDateString() === todayStr);
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in-up">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Bereket Kontrol Paneli</h1>
-          <p className="text-muted">Tüm çiftlik operasyonlarınızın kalbi.</p>
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--foreground)' }}>
+            Kontrol Paneli
+          </h1>
+          <p style={{ color: 'var(--muted)' }}>Tüm çiftlik operasyonlarınızın kalbi.</p>
         </div>
         <Link 
           href="/fields/new"
-          className="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-primary-strong"
+          className="btn-primary"
         >
           + Yeni Bahçe Ekle
         </Link>
       </header>
 
       {loading ? (
-        <div className="h-64 rounded-3xl border border-border bg-surface-muted flex items-center justify-center">
-          <p className="text-muted">Veriler derleniyor...</p>
+        <div className="h-64 card-3d flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
+            <p style={{ color: 'var(--muted)' }}>Veriler derleniyor...</p>
+          </div>
         </div>
       ) : (
         <>
           {/* Top KPI Cards */}
-          <div className="grid gap-6 md:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-4 stagger-children">
             
-            <div className="rounded-[28px] border border-border bg-surface p-6 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary mb-4 text-xl">
-                🌍
+            {/* Total Area */}
+            <div className="card-3d stat-card">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Toplam Alan</h3>
+                  <p className="stat-value">
+                    {totalArea.toFixed(1)}
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>hektar</p>
+                </div>
+                <div className="stat-icon">🌍</div>
               </div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">Toplam Alan</h3>
-              <p className="text-3xl font-black text-foreground">
-                {totalArea.toFixed(1)} <span className="text-lg text-muted font-medium">ha</span>
-              </p>
             </div>
 
-            <div className="rounded-[28px] border border-border bg-surface p-6 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 mb-4 text-xl">
-                💰
+            {/* Balance */}
+            <div className="card-3d stat-card">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Net Bakiye</h3>
+                  <p className="text-2xl font-bold" style={{ color: balance >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+                    {balance >= 0 ? '+' : ''}{balance.toLocaleString('tr-TR')} ₺
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>{transactions.length} işlem</p>
+                </div>
+                <div className="stat-icon">💰</div>
               </div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">Net Bakiye</h3>
-              <p className={`text-3xl font-black ${balance >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                {balance >= 0 ? '+' : ''}{balance.toLocaleString('tr-TR')} <span className="text-lg font-medium">₺</span>
-              </p>
             </div>
 
-            <div className="rounded-[28px] border border-border bg-surface p-6 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600 mb-4 text-xl">
-                ⏳
+            {/* Pending Tasks */}
+            <div className="card-3d stat-card">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Bekleyen İşler</h3>
+                  <p className="stat-value">
+                    {pendingTasks}
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>görev</p>
+                </div>
+                <div className="stat-icon" style={{ background: 'rgba(251, 191, 36, 0.1)', borderColor: 'rgba(251, 191, 36, 0.15)' }}>⏳</div>
               </div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">Bekleyen İşler</h3>
-              <p className="text-3xl font-black text-foreground">
-                {pendingTasks} <span className="text-lg text-muted font-medium">Görev</span>
-              </p>
             </div>
 
-            <div className="rounded-[28px] border border-border bg-surface p-6 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600 mb-4 text-xl">
-                🤖
+            {/* AI Status */}
+            <div className="card-3d stat-card">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Yapay Zeka</h3>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: 'var(--success)' }}></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: 'var(--success)' }}></span>
+                    </span>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--success)' }}>Aktif</p>
+                  </div>
+                  <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>RAG motoru izlemede</p>
+                </div>
+                <div className="stat-icon" style={{ background: 'rgba(6, 182, 212, 0.1)', borderColor: 'rgba(6, 182, 212, 0.15)' }}>🤖</div>
               </div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">Yapay Zeka Durumu</h3>
-              <p className="text-xl font-bold text-blue-700 mt-2">
-                Aktif ve İzlemede
-              </p>
             </div>
 
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
             
-            {/* Quick Actions & Overview */}
-            <div className="rounded-[32px] border border-border bg-surface p-8 shadow-sm flex flex-col justify-between overflow-hidden relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent z-0"></div>
+            {/* Daily Summary */}
+            <div className="card-3d flex flex-col justify-between overflow-hidden relative group">
+              <div className="absolute inset-0 opacity-30 z-0" style={{
+                background: 'radial-gradient(circle at top left, rgba(52, 211, 153, 0.1) 0%, transparent 60%)',
+              }}></div>
               
               <div className="relative z-10">
-                <h2 className="text-2xl font-bold text-foreground">Günün Özeti</h2>
-                <p className="text-muted mt-1">Bugün planlanan {todaysTasks.length} adet göreviniz bulunuyor.</p>
+                <h2 className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>Günün Özeti</h2>
+                <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>
+                  Bugün planlanan {todaysTasks.length} adet göreviniz bulunuyor.
+                </p>
                 
-                <div className="mt-6 space-y-3">
+                <div className="mt-5 space-y-3">
                   {todaysTasks.slice(0,3).map(t => (
-                    <div key={t.id} className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-border/50">
-                      <span className="text-2xl">📌</span>
+                    <div key={t.id} className="flex items-center gap-4 rounded-xl p-3 transition-all duration-300 hover:translate-x-1" style={{
+                      background: 'rgba(52, 211, 153, 0.05)',
+                      border: '1px solid rgba(52, 211, 153, 0.1)',
+                    }}>
+                      <span className="text-xl">📌</span>
                       <div>
-                        <p className="font-bold text-foreground">{t.title}</p>
-                        <p className="text-xs text-muted-foreground">{t.category}</p>
+                        <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>{t.title}</p>
+                        <p className="text-xs" style={{ color: 'var(--muted)' }}>{t.category}</p>
                       </div>
                     </div>
                   ))}
                   {todaysTasks.length === 0 && (
-                    <p className="text-sm text-muted font-medium py-4">Bugün için özel bir plan bulunmuyor.</p>
+                    <p className="text-sm font-medium py-4" style={{ color: 'var(--muted)' }}>
+                      Bugün için özel bir plan bulunmuyor.
+                    </p>
                   )}
                 </div>
               </div>
 
-              <div className="relative z-10 mt-8 flex gap-4">
-                <Link href="/advisor" className="rounded-xl bg-white border border-border px-6 py-3 text-sm font-bold text-foreground shadow-sm transition hover:bg-surface-muted">
-                  Yapay Zeka'ya Danış
+              <div className="relative z-10 mt-6 flex gap-3">
+                <Link href="/advisor" className="btn-primary text-sm">
+                  🧠 AI&apos;ye Danış
                 </Link>
-                <Link href="/fields" className="rounded-xl bg-white border border-border px-6 py-3 text-sm font-bold text-foreground shadow-sm transition hover:bg-surface-muted">
-                  Haritayı Aç
+                <Link href="/fields" className="btn-ghost text-sm">
+                  🗺️ Haritayı Aç
                 </Link>
               </div>
             </div>
 
-            {/* Quick Finances */}
-            <div className="rounded-[32px] border border-border bg-surface p-8 shadow-sm">
-              <h2 className="text-lg font-bold text-foreground mb-6">Son Finansal İşlemler</h2>
+            {/* Recent Finances */}
+            <div className="card-3d">
+              <h2 className="text-base font-bold mb-5" style={{ color: 'var(--foreground)' }}>Son İşlemler</h2>
               
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {transactions.slice(0, 5).map(tx => (
-                  <div key={tx.id} className="flex items-center justify-between">
+                  <div key={tx.id} className="flex items-center justify-between p-2 rounded-lg transition-all duration-200 hover:translate-x-1" style={{
+                    background: 'rgba(255, 255, 255, 0.02)',
+                  }}>
                     <div className="flex items-center gap-3">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${tx.type === 'Gelir' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold" style={{
+                        background: tx.type === 'Gelir' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                        color: tx.type === 'Gelir' ? 'var(--success)' : 'var(--danger)',
+                        border: `1px solid ${tx.type === 'Gelir' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)'}`,
+                      }}>
                         {tx.type === 'Gelir' ? '↓' : '↑'}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-foreground">{tx.category}</p>
-                        <p className="text-[10px] text-muted-foreground">{new Date(tx.date).toLocaleDateString('tr-TR')}</p>
+                        <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>{tx.category}</p>
+                        <p className="text-[10px]" style={{ color: 'var(--muted)' }}>{new Date(tx.date).toLocaleDateString('tr-TR')}</p>
                       </div>
                     </div>
-                    <div className={`text-sm font-black ${tx.type === 'Gelir' ? 'text-emerald-600' : 'text-red-500'}`}>
+                    <div className="text-sm font-bold" style={{
+                      color: tx.type === 'Gelir' ? 'var(--success)' : 'var(--danger)',
+                    }}>
                       {tx.type === 'Gelir' ? '+' : '-'}{tx.amount.toLocaleString('tr-TR')} ₺
                     </div>
                   </div>
                 ))}
 
                 {transactions.length === 0 && (
-                  <p className="text-sm text-muted">İşlem bulunamadı.</p>
+                  <p className="text-sm" style={{ color: 'var(--muted)' }}>İşlem bulunamadı.</p>
                 )}
               </div>
               
-              <Link href="/finances" className="mt-8 block text-center text-sm font-bold text-primary hover:underline">
+              <Link href="/finances" className="mt-6 block text-center text-sm font-bold transition-colors hover:underline" style={{ color: 'var(--primary)' }}>
                 Tümünü Gör →
               </Link>
             </div>

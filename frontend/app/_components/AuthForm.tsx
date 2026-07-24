@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { useMemo, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
 import { postAuth } from "@/lib/api/auth";
 
 type AuthFormProps = {
@@ -61,68 +61,75 @@ export default function AuthForm({ mode }: AuthFormProps) {
   }
 
   return (
-    <div className="w-full max-w-md rounded-[28px] border border-border bg-surface p-8 shadow-sm">
-      <div className="flex items-center gap-2">
+    <div className="w-full max-w-md card-3d animate-fade-in-up">
+      {/* Logo */}
+      <div className="flex items-center gap-2 mb-6">
         <img src="/bereket-logo.png" alt="Bereket" className="h-8 w-auto" />
-        <p className="text-sm font-bold uppercase tracking-[0.22em] text-primary">Bereket</p>
+        <p className="text-sm font-bold uppercase tracking-[0.22em]" style={{ color: 'var(--primary)' }}>Bereket</p>
       </div>
-      <h1 className="mt-4 text-3xl font-semibold tracking-tight text-foreground">
+
+      <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>
         {content.title}
       </h1>
-      <p className="mt-3 text-sm leading-6 text-muted">{content.description}</p>
+      <p className="mt-2 text-sm leading-6" style={{ color: 'var(--muted)' }}>{content.description}</p>
 
-      <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground" htmlFor="email">
+          <label
+            htmlFor="email"
+            className="block text-xs font-medium mb-1.5"
+            style={{ color: 'var(--foreground-dim)' }}
+          >
             E-posta
           </label>
           <input
             id="email"
             type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground placeholder:text-muted"
-            placeholder="ornek@firma.com"
             required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full"
+            placeholder="ornek@bereket.com"
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-foreground" htmlFor="password">
+          <label
+            htmlFor="password"
+            className="block text-xs font-medium mb-1.5"
+            style={{ color: 'var(--foreground-dim)' }}
+          >
             Şifre
           </label>
           <input
             id="password"
             type="password"
-            autoComplete={mode === "login" ? "current-password" : "new-password"}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground placeholder:text-muted"
-            placeholder="En az 8 karakter"
-            minLength={8}
             required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full"
+            placeholder="••••••••"
           />
         </div>
 
-        {error ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        {error && (
+          <div className="rounded-xl p-3 text-sm" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#f87171' }}>
             {error}
           </div>
-        ) : null}
+        )}
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex w-full items-center justify-center rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-70"
+          className="btn-primary w-full disabled:opacity-50"
         >
           {isSubmitting ? "İşleniyor..." : content.submitLabel}
         </button>
       </form>
 
-      <p className="mt-6 text-sm text-muted">
+      <p className="mt-5 text-center text-sm" style={{ color: 'var(--muted)' }}>
         {content.alternateText}{" "}
-        <Link href={content.alternateHref} className="font-semibold text-primary">
+        <Link href={content.alternateHref} className="font-semibold transition-colors hover:underline" style={{ color: 'var(--primary)' }}>
           {content.alternateLabel}
         </Link>
       </p>
