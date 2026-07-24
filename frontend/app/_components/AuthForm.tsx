@@ -19,22 +19,19 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const content = useMemo(() => {
     if (mode === "register") {
       return {
-        title: "Yeni hesap oluştur",
-        description:
-          "Bereket platformuna erişmek için e-posta adresinizle hesap oluşturun.",
+        title: "Hesap oluşturun",
+        description: "Bereket platformuna erişmek için bilgilerinizi girin.",
         submitLabel: "Hesap Oluştur",
         alternateText: "Zaten hesabınız var mı?",
         alternateHref: "/login",
         alternateLabel: "Giriş yapın",
       };
     }
-
     return {
-      title: "Hesabınıza giriş yapın",
-      description:
-        "Tarla, hava ve danışmanlık modüllerini yönetmek için hesabınıza giriş yapın.",
+      title: "Giriş yapın",
+      description: "E-posta ve şifrenizle hesabınıza erişin.",
       submitLabel: "Giriş Yap",
-      alternateText: "Henüz hesabınız yok mu?",
+      alternateText: "Hesabınız yok mu?",
       alternateHref: "/register",
       alternateLabel: "Kayıt olun",
     };
@@ -44,7 +41,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
     event.preventDefault();
     setError("");
     setIsSubmitting(true);
-
     try {
       await postAuth(mode, { email, password });
       router.push("/dashboard");
@@ -61,25 +57,22 @@ export default function AuthForm({ mode }: AuthFormProps) {
   }
 
   return (
-    <div className="w-full max-w-md card-3d animate-fade-in-up">
-      {/* Logo */}
-      <div className="flex items-center gap-2 mb-6">
-        <img src="/bereket-logo.png" alt="Bereket" className="h-8 w-auto" />
-        <p className="text-sm font-bold uppercase tracking-[0.22em]" style={{ color: 'var(--primary)' }}>Bereket</p>
+    <div className="card" style={{ maxWidth: '24rem', width: '100%', padding: '2rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+        <img src="/bereket-logo.png" alt="Bereket" style={{ height: '24px' }} />
+        <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--foreground)' }}>Bereket</span>
       </div>
 
-      <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>
+      <h1 style={{ fontSize: '1.375rem', fontWeight: 650, color: 'var(--foreground)', letterSpacing: '-0.02em' }}>
         {content.title}
       </h1>
-      <p className="mt-2 text-sm leading-6" style={{ color: 'var(--muted)' }}>{content.description}</p>
+      <p style={{ fontSize: '0.8125rem', color: 'var(--muted)', marginTop: '0.375rem' }}>
+        {content.description}
+      </p>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+      <form onSubmit={handleSubmit} style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
-          <label
-            htmlFor="email"
-            className="block text-xs font-medium mb-1.5"
-            style={{ color: 'var(--foreground-dim)' }}
-          >
+          <label htmlFor="email" style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--foreground-secondary)', marginBottom: '0.375rem' }}>
             E-posta
           </label>
           <input
@@ -88,17 +81,12 @@ export default function AuthForm({ mode }: AuthFormProps) {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full"
-            placeholder="ornek@bereket.com"
+            placeholder="siz@ornek.com"
           />
         </div>
 
         <div>
-          <label
-            htmlFor="password"
-            className="block text-xs font-medium mb-1.5"
-            style={{ color: 'var(--foreground-dim)' }}
-          >
+          <label htmlFor="password" style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--foreground-secondary)', marginBottom: '0.375rem' }}>
             Şifre
           </label>
           <input
@@ -107,29 +95,31 @@ export default function AuthForm({ mode }: AuthFormProps) {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full"
             placeholder="••••••••"
           />
         </div>
 
         {error && (
-          <div className="rounded-xl p-3 text-sm" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#f87171' }}>
+          <div style={{
+            padding: '0.625rem 0.75rem',
+            borderRadius: '8px',
+            fontSize: '0.8125rem',
+            background: 'var(--danger-bg)',
+            color: 'var(--danger)',
+            border: '1px solid var(--danger-border)',
+          }}>
             {error}
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="btn-primary w-full disabled:opacity-50"
-        >
+        <button type="submit" disabled={isSubmitting} className="btn btn-primary" style={{ width: '100%', marginTop: '0.25rem' }}>
           {isSubmitting ? "İşleniyor..." : content.submitLabel}
         </button>
       </form>
 
-      <p className="mt-5 text-center text-sm" style={{ color: 'var(--muted)' }}>
+      <p style={{ marginTop: '1.25rem', textAlign: 'center', fontSize: '0.8125rem', color: 'var(--muted)' }}>
         {content.alternateText}{" "}
-        <Link href={content.alternateHref} className="font-semibold transition-colors hover:underline" style={{ color: 'var(--primary)' }}>
+        <Link href={content.alternateHref} style={{ color: 'var(--primary)', fontWeight: 500 }}>
           {content.alternateLabel}
         </Link>
       </p>

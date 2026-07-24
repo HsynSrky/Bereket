@@ -16,212 +16,216 @@ export default function DashboardPage() {
     async function init() {
       try {
         const [flds, tsks, txs] = await Promise.all([
-          getFields(),
-          getTasks(),
-          getTransactions()
+          getFields(), getTasks(), getTransactions()
         ]);
         setFields(flds);
         setTasks(tsks);
         setTransactions(txs);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+      } catch (err) { console.error(err); }
+      finally { setLoading(false); }
     }
     void init();
   }, []);
 
   const totalArea = fields.reduce((sum, f) => sum + f.areaSqMeters, 0) / 10000;
-  
-  const balance = transactions.reduce((sum, tx) => {
-    return tx.type === "Gelir" ? sum + tx.amount : sum - tx.amount;
-  }, 0);
-
+  const income = transactions.filter(t => t.type === "Gelir").reduce((s, t) => s + t.amount, 0);
+  const expense = transactions.filter(t => t.type === "Gider").reduce((s, t) => s + t.amount, 0);
+  const balance = income - expense;
   const pendingTasks = tasks.filter(t => t.status === "Bekliyor").length;
-  
   const todayStr = new Date().toDateString();
   const todaysTasks = tasks.filter(t => new Date(t.dueDate).toDateString() === todayStr);
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
+        <p style={{ color: 'var(--muted)', fontSize: '0.875rem' }}>Yükleniyor...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in-up">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Header */}
+      <div className="animate-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--foreground)' }}>
-            Kontrol Paneli
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 650, color: 'var(--foreground)', letterSpacing: '-0.025em' }}>
+            Genel Bakış
           </h1>
-          <p style={{ color: 'var(--muted)' }}>Tüm çiftlik operasyonlarınızın kalbi.</p>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
+            Çiftlik operasyonlarınızın özeti.
+          </p>
         </div>
-        <Link 
-          href="/fields/new"
-          className="btn-primary"
-        >
-          + Yeni Bahçe Ekle
+        <Link href="/fields/new" className="btn btn-primary">
+          + Yeni Bahçe
         </Link>
-      </header>
+      </div>
 
-      {loading ? (
-        <div className="h-64 card-3d flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
-            <p style={{ color: 'var(--muted)' }}>Veriler derleniyor...</p>
-          </div>
+      {/* KPI Cards */}
+      <div className="animate-in delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
+        <div className="card stat-card">
+          <p className="stat-label">Toplam Alan</p>
+          <p className="stat-value">{totalArea.toFixed(1)}<span style={{ fontSize: '0.875rem', fontWeight: 400, color: 'var(--muted)', marginLeft: '0.25rem' }}>ha</span></p>
+          <p className="stat-change" style={{ color: 'var(--muted)' }}>{fields.length} bahçe kayıtlı</p>
         </div>
-      ) : (
-        <>
-          {/* Top KPI Cards */}
-          <div className="grid gap-4 md:grid-cols-4 stagger-children">
-            
-            {/* Total Area */}
-            <div className="card-3d stat-card">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Toplam Alan</h3>
-                  <p className="stat-value">
-                    {totalArea.toFixed(1)}
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>hektar</p>
-                </div>
-                <div className="stat-icon">🌍</div>
-              </div>
-            </div>
 
-            {/* Balance */}
-            <div className="card-3d stat-card">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Net Bakiye</h3>
-                  <p className="text-2xl font-bold" style={{ color: balance >= 0 ? 'var(--success)' : 'var(--danger)' }}>
-                    {balance >= 0 ? '+' : ''}{balance.toLocaleString('tr-TR')} ₺
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>{transactions.length} işlem</p>
-                </div>
-                <div className="stat-icon">💰</div>
-              </div>
-            </div>
+        <div className="card stat-card">
+          <p className="stat-label">Gelir</p>
+          <p className="stat-value" style={{ color: 'var(--success)' }}>+{income.toLocaleString('tr-TR')}<span style={{ fontSize: '0.875rem', fontWeight: 400, marginLeft: '0.125rem' }}>₺</span></p>
+          <p className="stat-change" style={{ color: 'var(--muted)' }}>{transactions.filter(t=>t.type==="Gelir").length} işlem</p>
+        </div>
 
-            {/* Pending Tasks */}
-            <div className="card-3d stat-card">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Bekleyen İşler</h3>
-                  <p className="stat-value">
-                    {pendingTasks}
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>görev</p>
-                </div>
-                <div className="stat-icon" style={{ background: 'rgba(251, 191, 36, 0.1)', borderColor: 'rgba(251, 191, 36, 0.15)' }}>⏳</div>
-              </div>
-            </div>
+        <div className="card stat-card">
+          <p className="stat-label">Gider</p>
+          <p className="stat-value" style={{ color: 'var(--danger)' }}>-{expense.toLocaleString('tr-TR')}<span style={{ fontSize: '0.875rem', fontWeight: 400, marginLeft: '0.125rem' }}>₺</span></p>
+          <p className="stat-change" style={{ color: 'var(--muted)' }}>{transactions.filter(t=>t.type==="Gider").length} işlem</p>
+        </div>
 
-            {/* AI Status */}
-            <div className="card-3d stat-card">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Yapay Zeka</h3>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="relative flex h-2.5 w-2.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: 'var(--success)' }}></span>
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: 'var(--success)' }}></span>
-                    </span>
-                    <p className="text-sm font-semibold" style={{ color: 'var(--success)' }}>Aktif</p>
-                  </div>
-                  <p className="text-xs mt-1" style={{ color: 'var(--muted)' }}>RAG motoru izlemede</p>
-                </div>
-                <div className="stat-icon" style={{ background: 'rgba(6, 182, 212, 0.1)', borderColor: 'rgba(6, 182, 212, 0.15)' }}>🤖</div>
-              </div>
-            </div>
+        <div className="card stat-card">
+          <p className="stat-label">Bekleyen Görevler</p>
+          <p className="stat-value">{pendingTasks}</p>
+          <p className="stat-change" style={{ color: 'var(--muted)' }}>{tasks.length} toplam görev</p>
+        </div>
+      </div>
 
+      {/* Content Grid */}
+      <div className="animate-in delay-2" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '0.75rem' }}>
+        
+        {/* Today's Tasks */}
+        <div className="card" style={{ padding: '1.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--foreground)' }}>Bugünün Görevleri</h2>
+            <Link href="/tasks" style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--primary)' }}>
+              Tümünü gör →
+            </Link>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-            
-            {/* Daily Summary */}
-            <div className="card-3d flex flex-col justify-between overflow-hidden relative group">
-              <div className="absolute inset-0 opacity-30 z-0" style={{
-                background: 'radial-gradient(circle at top left, rgba(52, 211, 153, 0.1) 0%, transparent 60%)',
-              }}></div>
-              
-              <div className="relative z-10">
-                <h2 className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>Günün Özeti</h2>
-                <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>
-                  Bugün planlanan {todaysTasks.length} adet göreviniz bulunuyor.
-                </p>
-                
-                <div className="mt-5 space-y-3">
-                  {todaysTasks.slice(0,3).map(t => (
-                    <div key={t.id} className="flex items-center gap-4 rounded-xl p-3 transition-all duration-300 hover:translate-x-1" style={{
-                      background: 'rgba(52, 211, 153, 0.05)',
-                      border: '1px solid rgba(52, 211, 153, 0.1)',
-                    }}>
-                      <span className="text-xl">📌</span>
-                      <div>
-                        <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>{t.title}</p>
-                        <p className="text-xs" style={{ color: 'var(--muted)' }}>{t.category}</p>
-                      </div>
-                    </div>
-                  ))}
-                  {todaysTasks.length === 0 && (
-                    <p className="text-sm font-medium py-4" style={{ color: 'var(--muted)' }}>
-                      Bugün için özel bir plan bulunmuyor.
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="relative z-10 mt-6 flex gap-3">
-                <Link href="/advisor" className="btn-primary text-sm">
-                  🧠 AI&apos;ye Danış
-                </Link>
-                <Link href="/fields" className="btn-ghost text-sm">
-                  🗺️ Haritayı Aç
-                </Link>
-              </div>
-            </div>
-
-            {/* Recent Finances */}
-            <div className="card-3d">
-              <h2 className="text-base font-bold mb-5" style={{ color: 'var(--foreground)' }}>Son İşlemler</h2>
-              
-              <div className="space-y-3">
-                {transactions.slice(0, 5).map(tx => (
-                  <div key={tx.id} className="flex items-center justify-between p-2 rounded-lg transition-all duration-200 hover:translate-x-1" style={{
-                    background: 'rgba(255, 255, 255, 0.02)',
-                  }}>
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold" style={{
-                        background: tx.type === 'Gelir' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                        color: tx.type === 'Gelir' ? 'var(--success)' : 'var(--danger)',
-                        border: `1px solid ${tx.type === 'Gelir' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)'}`,
-                      }}>
-                        {tx.type === 'Gelir' ? '↓' : '↑'}
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>{tx.category}</p>
-                        <p className="text-[10px]" style={{ color: 'var(--muted)' }}>{new Date(tx.date).toLocaleDateString('tr-TR')}</p>
-                      </div>
-                    </div>
-                    <div className="text-sm font-bold" style={{
-                      color: tx.type === 'Gelir' ? 'var(--success)' : 'var(--danger)',
-                    }}>
-                      {tx.type === 'Gelir' ? '+' : '-'}{tx.amount.toLocaleString('tr-TR')} ₺
-                    </div>
-                  </div>
-                ))}
-
-                {transactions.length === 0 && (
-                  <p className="text-sm" style={{ color: 'var(--muted)' }}>İşlem bulunamadı.</p>
-                )}
-              </div>
-              
-              <Link href="/finances" className="mt-6 block text-center text-sm font-bold transition-colors hover:underline" style={{ color: 'var(--primary)' }}>
-                Tümünü Gör →
+          {todaysTasks.length === 0 ? (
+            <div style={{
+              padding: '2rem',
+              textAlign: 'center',
+              background: 'var(--surface-muted)',
+              borderRadius: '8px',
+            }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--muted)' }}>Bugün için planlanmış görev yok.</p>
+              <Link href="/tasks" className="btn btn-primary" style={{ marginTop: '0.75rem', fontSize: '0.8125rem' }}>
+                Görev Ekle
               </Link>
             </div>
-          </div>
-        </>
-      )}
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {todaysTasks.slice(0, 5).map(t => (
+                <div key={t.id} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.625rem 0.75rem',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border)',
+                  transition: 'background 0.15s ease',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{
+                      width: '8px', height: '8px', borderRadius: '50%',
+                      background: t.status === 'Tamamlandı' ? 'var(--success)' : t.status === 'Bekliyor' ? 'var(--warning)' : 'var(--info)',
+                    }} />
+                    <div>
+                      <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--foreground)' }}>{t.title}</p>
+                      <p style={{ fontSize: '0.6875rem', color: 'var(--muted)' }}>{t.category}</p>
+                    </div>
+                  </div>
+                  <span className={`badge badge-${t.status === 'Tamamlandı' ? 'success' : 'warning'}`}>
+                    {t.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
+        {/* Recent Finances */}
+        <div className="card" style={{ padding: '1.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--foreground)' }}>Son İşlemler</h2>
+            <Link href="/finances" style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--primary)' }}>
+              Tümünü gör →
+            </Link>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {transactions.slice(0, 6).map(tx => (
+              <div key={tx.id} style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0.5rem 0',
+                borderBottom: '1px solid var(--border)',
+              }}>
+                <div>
+                  <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--foreground)' }}>{tx.description || tx.category}</p>
+                  <p style={{ fontSize: '0.6875rem', color: 'var(--muted)' }}>
+                    {new Date(tx.date).toLocaleDateString('tr-TR')}
+                  </p>
+                </div>
+                <span style={{
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  color: tx.type === 'Gelir' ? 'var(--success)' : 'var(--danger)',
+                }}>
+                  {tx.type === 'Gelir' ? '+' : '−'}{tx.amount.toLocaleString('tr-TR')} ₺
+                </span>
+              </div>
+            ))}
+
+            {transactions.length === 0 && (
+              <p style={{ fontSize: '0.8125rem', color: 'var(--muted)', padding: '1rem 0', textAlign: 'center' }}>
+                Henüz işlem yok.
+              </p>
+            )}
+          </div>
+
+          {/* Net Balance bar */}
+          <div style={{
+            marginTop: '1rem',
+            padding: '0.75rem',
+            borderRadius: '8px',
+            background: balance >= 0 ? 'var(--success-bg)' : 'var(--danger-bg)',
+            border: `1px solid ${balance >= 0 ? 'var(--success-border)' : 'var(--danger-border)'}`,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 500, color: balance >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+                Net Bakiye
+              </span>
+              <span style={{ fontSize: '0.9375rem', fontWeight: 700, color: balance >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+                {balance >= 0 ? '+' : ''}{balance.toLocaleString('tr-TR')} ₺
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="animate-in delay-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+        {[
+          { href: "/advisor", icon: "◎", title: "AI Danışman", desc: "Yapay zekadan tarımsal tavsiye alın", color: 'var(--accent-violet)' },
+          { href: "/fields", icon: "⬡", title: "Bahçeleri Gör", desc: "Tarlalarınızı haritada inceleyin", color: 'var(--primary)' },
+          { href: "/inventory", icon: "⊞", title: "Envanter", desc: "Depo stoğunuzu kontrol edin", color: 'var(--accent-amber)' },
+        ].map((action) => (
+          <Link key={action.href} href={action.href} className="card-interactive" style={{ padding: '1.25rem' }}>
+            <div style={{
+              width: '36px', height: '36px', borderRadius: '8px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1.125rem',
+              background: `${action.color}10`, color: action.color,
+              border: `1px solid ${action.color}20`,
+              marginBottom: '0.75rem',
+            }}>
+              {action.icon}
+            </div>
+            <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--foreground)' }}>{action.title}</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem' }}>{action.desc}</p>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

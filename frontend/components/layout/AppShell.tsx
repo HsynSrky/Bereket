@@ -5,13 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { clearAuthSession, getStoredUser } from "@/lib/auth";
 
 const navItems = [
-  { href: "/dashboard", label: "Panel", icon: "📊" },
-  { href: "/fields", label: "Bahçelerim", icon: "🌾" },
-  { href: "/weather", label: "Hava", icon: "🌤️" },
-  { href: "/advisor", label: "Danışman", icon: "🧠" },
-  { href: "/finances", label: "Maliyet", icon: "💰" },
-  { href: "/tasks", label: "Görevler", icon: "📋" },
-  { href: "/inventory", label: "Depo", icon: "📦" },
+  { href: "/dashboard", label: "Genel Bakış", icon: "◈" },
+  { href: "/fields", label: "Bahçeler", icon: "⬡" },
+  { href: "/weather", label: "Hava Durumu", icon: "◉" },
+  { href: "/advisor", label: "AI Danışman", icon: "◎" },
+  { href: "/finances", label: "Finans", icon: "▣" },
+  { href: "/tasks", label: "Görevler", icon: "☐" },
+  { href: "/inventory", label: "Envanter", icon: "⊞" },
 ];
 
 type AppShellProps = {
@@ -30,40 +30,79 @@ export default function AppShell({ children }: AppShellProps) {
   }
 
   return (
-    <div className="min-h-screen bg-mesh bg-orbs" style={{ background: 'var(--background)' }}>
-      {/* === HEADER === */}
-      <header className="glass-strong sticky top-0 z-50 border-b" style={{ borderColor: 'var(--border)' }}>
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 lg:px-10">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <img src="/bereket-logo.png" alt="Bereket" className="h-10 w-auto relative z-10" />
-              <div className="absolute inset-0 blur-lg opacity-40" style={{ background: 'var(--primary-glow)' }} />
-            </div>
-            <div>
-              <p className="text-sm font-bold tracking-wide text-glow" style={{ color: 'var(--primary)' }}>
-                Bereket
-              </p>
-              <p className="text-xs" style={{ color: 'var(--muted)' }}>{user?.email}</p>
-            </div>
+    <div style={{ minHeight: '100vh', background: 'var(--background)' }}>
+      {/* HEADER */}
+      <header style={{
+        borderBottom: '1px solid var(--border)',
+        background: 'var(--surface)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+      }}>
+        <div style={{
+          maxWidth: '80rem',
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 1.5rem',
+          height: '52px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+            <img src="/bereket-logo.png" alt="Bereket" style={{ height: '28px', width: 'auto' }} />
+            <span style={{
+              fontSize: '0.9375rem',
+              fontWeight: 650,
+              color: 'var(--foreground)',
+              letterSpacing: '-0.01em',
+            }}>
+              Bereket
+            </span>
+            <span style={{
+              fontSize: '0.6875rem',
+              padding: '0.125rem 0.375rem',
+              borderRadius: '4px',
+              background: 'var(--primary-light)',
+              color: 'var(--primary)',
+              fontWeight: 500,
+            }}>
+              Pro
+            </span>
           </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="btn-ghost text-sm"
-          >
-            Çıkış Yap
-          </button>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: '0.8125rem', color: 'var(--muted)' }}>
+              {user?.email}
+            </span>
+            <div style={{ width: '1px', height: '20px', background: 'var(--border)' }} />
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="btn-ghost"
+              style={{ fontSize: '0.8125rem' }}
+            >
+              Çıkış
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* === LAYOUT === */}
-      <div className="mx-auto grid max-w-7xl gap-8 px-6 py-8 lg:grid-cols-[240px_1fr] lg:px-10">
-        {/* === SIDEBAR === */}
-        <aside
-          className="glass-card h-fit rounded-2xl p-4 animate-fade-in-up"
-          style={{ animationDelay: '0.1s' }}
-        >
-          <nav className="space-y-1 stagger-children">
+      {/* LAYOUT */}
+      <div style={{
+        maxWidth: '80rem',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: '220px 1fr',
+        gap: '0',
+        minHeight: 'calc(100vh - 52px)',
+      }}>
+        {/* SIDEBAR */}
+        <aside style={{
+          borderRight: '1px solid var(--border)',
+          padding: '1.25rem 0.75rem',
+          background: 'var(--surface)',
+        }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
             {navItems.map((item) => {
               const isActive =
                 pathname === item.href ||
@@ -73,30 +112,18 @@ export default function AppShell({ children }: AppShellProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`nav-pill flex items-center gap-2.5 ${isActive ? "active" : ""}`}
+                  className={`nav-item ${isActive ? "active" : ""}`}
                 >
-                  <span className="text-base">{item.icon}</span>
+                  <span className="nav-icon">{item.icon}</span>
                   {item.label}
                 </Link>
               );
             })}
           </nav>
-
-          {/* Mini stats in sidebar */}
-          <div className="mt-6 rounded-xl p-3" style={{ background: 'rgba(52, 211, 153, 0.06)', border: '1px solid rgba(52, 211, 153, 0.1)' }}>
-            <p className="text-xs font-semibold mb-1" style={{ color: 'var(--primary)' }}>Sistem Durumu</p>
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: 'var(--success)' }}></span>
-                <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: 'var(--success)' }}></span>
-              </span>
-              <span className="text-xs" style={{ color: 'var(--muted)' }}>Tüm sistemler aktif</span>
-            </div>
-          </div>
         </aside>
 
-        {/* === MAIN CONTENT === */}
-        <main className="animate-fade-in-up min-w-0" style={{ animationDelay: '0.2s' }}>
+        {/* MAIN */}
+        <main style={{ padding: '1.5rem 2rem', minWidth: 0 }}>
           {children}
         </main>
       </div>
