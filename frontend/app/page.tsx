@@ -11,8 +11,6 @@ export default function Home() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        maxWidth: '80rem',
-        margin: '0 auto',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <img src="/bereket-logo.png" alt="Bereket" style={{ height: '26px', width: 'auto' }} />

@@ -30,7 +30,7 @@ export default function AppShell({ children }: AppShellProps) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--background)' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', flexDirection: 'column' }}>
       {/* HEADER */}
       <header style={{
         borderBottom: '1px solid var(--border)',
@@ -40,8 +40,6 @@ export default function AppShell({ children }: AppShellProps) {
         zIndex: 50,
       }}>
         <div style={{
-          maxWidth: '80rem',
-          margin: '0 auto',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -87,14 +85,11 @@ export default function AppShell({ children }: AppShellProps) {
         </div>
       </header>
 
-      {/* LAYOUT */}
+      {/* LAYOUT - full width */}
       <div style={{
-        maxWidth: '80rem',
-        margin: '0 auto',
         display: 'grid',
         gridTemplateColumns: '220px 1fr',
-        gap: '0',
-        minHeight: 'calc(100vh - 52px)',
+        flex: 1,
       }}>
         {/* SIDEBAR */}
         <aside style={{
@@ -122,8 +117,8 @@ export default function AppShell({ children }: AppShellProps) {
           </nav>
         </aside>
 
-        {/* MAIN */}
-        <main style={{ padding: '1.5rem 2rem', minWidth: 0 }}>
+        {/* MAIN - full width */}
+        <main style={{ padding: '1.5rem 2rem', minWidth: 0, background: 'var(--background)' }}>
           {children}
         </main>
       </div>
